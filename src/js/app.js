@@ -7,7 +7,8 @@ import { initSpatialNavigation, setFocus } from './tv/spatialNav.js';
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-// --- ANIQUILADOR DE BANNER DO NETLIFY (CSS) ---
+// --- SISTEMA DE DEFESA CONTRA O BANNER DO NETLIFY ---
+// 1. Cria a regra de CSS
 const style = document.createElement('style');
 style.innerHTML = `
   iframe[src*="netlify"], 
@@ -20,35 +21,34 @@ style.innerHTML = `
     opacity: 0 !important; 
     visibility: hidden !important; 
     pointer-events: none !important;
-    width: 0 !important;
-    height: 0 !important;
   }
 `;
 document.head.appendChild(style);
 
+// 2. O Exterminador: Fica de olho no site e arranca o banner se ele aparecer
+const observer = new MutationObserver(() => {
+  const banners = document.querySelectorAll('iframe[src*="netlify"], #netlify-badge, .netlify-badge, [data-netlify-badge]');
+  banners.forEach(b => b.remove());
+});
+observer.observe(document.body, { childList: true, subtree: true });
+
 // --- FORÇA O MAC ADDRESS A APARECER IMEDIATAMENTE ---
-// Loop de segurança: tenta 10 vezes durante 2 segundos injetar o MAC na tela
 let tentativasMac = 0;
 const macInterval = setInterval(() => {
   try {
     const mac = storage.getDeviceMac();
-    let injetou = false;
-
     const elSetup = document.getElementById('setup-mac');
     const elHome = document.getElementById('home-mac');
     const elSettings = document.getElementById('settings-mac');
     
-    if (elSetup && elSetup.textContent === 'Carregando...') { elSetup.textContent = mac; injetou = true; }
-    if (elHome && elHome.textContent === 'Carregando...') { elHome.textContent = mac; injetou = true; }
-    if (elSettings && elSettings.textContent === '00:00:00:00:00:00') { elSettings.textContent = mac; injetou = true; }
+    if (elSetup && elSetup.textContent === 'Carregando...') elSetup.textContent = mac;
+    if (elHome && elHome.textContent === 'Carregando...') elHome.textContent = mac;
+    if (elSettings && elSettings.textContent === '00:00:00:00:00:00') elSettings.textContent = mac;
 
     tentativasMac++;
     if (tentativasMac > 10) clearInterval(macInterval);
-  } catch (e) {
-    console.error("Erro no MAC:", e);
-  }
+  } catch (e) { console.error("Erro no MAC:", e); }
 }, 200);
-// ------------------------------------------------
 
 let currentPlaylist = []; 
 let filteredPlaylist = []; 
