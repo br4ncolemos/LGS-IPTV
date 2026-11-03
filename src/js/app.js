@@ -7,16 +7,15 @@ import { initSpatialNavigation, setFocus } from './tv/spatialNav.js';
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-// --- ANIQUILADOR SUPREMO DE BANNER DO NETLIFY ---
-// 1. Cria um estilo CSS agressivo
+// --- ANIQUILADOR DE BANNER DO NETLIFY (CSS) ---
 const style = document.createElement('style');
 style.innerHTML = `
   iframe[src*="netlify"], 
   #netlify-badge, 
   .netlify-badge, 
   [data-netlify-badge],
-  a[href*="netlify.com"]:not(.btn-shine),
-  div[style*="z-index: 999999"] {
+  div[style*="z-index: 999999"],
+  a[href*="netlify.com"]:not(.btn-shine) {
     display: none !important; 
     opacity: 0 !important; 
     visibility: hidden !important; 
@@ -27,30 +26,29 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-// 2. O Observador: fica de olho no DOM e arranca o banner se ele aparecer
-const observer = new MutationObserver(() => {
-  const badElements = document.querySelectorAll('iframe[src*="netlify"], #netlify-badge, .netlify-badge, [data-netlify-badge]');
-  badElements.forEach(el => el.remove());
-});
-observer.observe(document.body, { childList: true, subtree: true });
-// ------------------------------------------------
-
 // --- FORÇA O MAC ADDRESS A APARECER IMEDIATAMENTE ---
-function forcarMacNaTela() {
+// Loop de segurança: tenta 10 vezes durante 2 segundos injetar o MAC na tela
+let tentativasMac = 0;
+const macInterval = setInterval(() => {
   try {
     const mac = storage.getDeviceMac();
+    let injetou = false;
+
     const elSetup = document.getElementById('setup-mac');
     const elHome = document.getElementById('home-mac');
     const elSettings = document.getElementById('settings-mac');
     
-    if (elSetup) elSetup.textContent = mac;
-    if (elHome) elHome.textContent = mac;
-    if (elSettings) elSettings.textContent = mac;
+    if (elSetup && elSetup.textContent === 'Carregando...') { elSetup.textContent = mac; injetou = true; }
+    if (elHome && elHome.textContent === 'Carregando...') { elHome.textContent = mac; injetou = true; }
+    if (elSettings && elSettings.textContent === '00:00:00:00:00:00') { elSettings.textContent = mac; injetou = true; }
+
+    tentativasMac++;
+    if (tentativasMac > 10) clearInterval(macInterval);
   } catch (e) {
     console.error("Erro no MAC:", e);
   }
-}
-setTimeout(forcarMacNaTela, 100);
+}, 200);
+// ------------------------------------------------
 
 let currentPlaylist = []; 
 let filteredPlaylist = []; 
@@ -457,8 +455,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   initSpatialNavigation();
   showLoader('Iniciando...');
   
-  forcarMacNaTela();
-
   const isLogged = await tryAutoLogin();
   if (!isLogged) { 
     showScreen('screen-setup'); 
@@ -521,7 +517,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   $('#btn-back-series').addEventListener('click', () => showScreen('screen-channels'));
   $('#btn-back-movie').addEventListener('click', () => showScreen('screen-channels'));
   $('#btn-back-settings').addEventListener('click', () => showScreen('screen-home'));
-  $('#btn-open-settings').addEventListener('click', () => { forcarMacNaTela(); showScreen('screen-settings'); });
+  $('#btn-open-settings').addEventListener('click', () => { showScreen('screen-settings'); });
   $('#btn-toggle-sidebar').addEventListener('click', () => {
     const sidebar = $('#sidebar');
     sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
