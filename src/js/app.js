@@ -7,17 +7,33 @@ import { initSpatialNavigation, setFocus } from './tv/spatialNav.js';
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-// --- ANIQUILADOR DE BANNER DO NETLIFY ---
+// --- ANIQUILADOR SUPREMO DE BANNER DO NETLIFY ---
+// 1. Cria um estilo CSS agressivo
 const style = document.createElement('style');
 style.innerHTML = `
-  iframe[src*="netlify"], #netlify-badge, .netlify-badge, [data-netlify-badge] { 
+  iframe[src*="netlify"], 
+  #netlify-badge, 
+  .netlify-badge, 
+  [data-netlify-badge],
+  a[href*="netlify.com"]:not(.btn-shine),
+  div[style*="z-index: 999999"] {
     display: none !important; 
     opacity: 0 !important; 
     visibility: hidden !important; 
     pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 `;
 document.head.appendChild(style);
+
+// 2. O Observador: fica de olho no DOM e arranca o banner se ele aparecer
+const observer = new MutationObserver(() => {
+  const badElements = document.querySelectorAll('iframe[src*="netlify"], #netlify-badge, .netlify-badge, [data-netlify-badge]');
+  badElements.forEach(el => el.remove());
+});
+observer.observe(document.body, { childList: true, subtree: true });
+// ------------------------------------------------
 
 // --- FORÇA O MAC ADDRESS A APARECER IMEDIATAMENTE ---
 function forcarMacNaTela() {
@@ -34,7 +50,6 @@ function forcarMacNaTela() {
     console.error("Erro no MAC:", e);
   }
 }
-// Roda assim que o script carregar
 setTimeout(forcarMacNaTela, 100);
 
 let currentPlaylist = []; 
@@ -442,7 +457,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   initSpatialNavigation();
   showLoader('Iniciando...');
   
-  // Roda de novo só pra garantir
   forcarMacNaTela();
 
   const isLogged = await tryAutoLogin();
