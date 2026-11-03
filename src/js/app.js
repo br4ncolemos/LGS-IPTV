@@ -7,36 +7,40 @@ import { initSpatialNavigation, setFocus } from './tv/spatialNav.js';
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-// --- O EXTERMINADOR DO NETLIFY ---
-// Procura a tag <netlify-badge> (que é o coração do banner) e arranca ela + o pai dela
-setInterval(() => {
-  const badge = document.querySelector('netlify-badge');
-  if (badge) {
-    // Se achar, remove o elemento e o container dele
-    badge.remove(); 
-    if (badge.parentElement) badge.parentElement.remove();
-  }
-}, 1000); 
+// --- O EXTERMINADOR DE BANNER (SHADOW DOM KILLER) ---
+// Roda assim que a página carrega
+document.addEventListener('DOMContentLoaded', () => {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        // Se o nó for o banner ou contiver o banner
+        if (node.nodeName && node.nodeName.toLowerCase() === 'netlify-badge') {
+          node.remove();
+        }
+        if (node.id === 'netlify-badge' || node.className === 'netlify-badge') {
+          node.remove();
+        }
+      });
+    });
+  });
+  
+  // Observa TUDO na página, até o que o Netlify injeta por baixo dos panos
+  observer.observe(document.documentElement, { 
+    childList: true, 
+    subtree: true 
+  });
+});
 
-// --- SISTEMA MAC ADDRESS (Força bruta pra nunca ficar "Carregando") ---
-let tentativasMac = 0;
-const macInterval = setInterval(() => {
+// --- SISTEMA MAC ADDRESS (Blindado) ---
+setTimeout(() => {
   try {
     const mac = storage.getDeviceMac();
-    const elSetup = document.getElementById('setup-mac');
-    const elHome = document.getElementById('home-mac');
-    const elSettings = document.getElementById('settings-mac');
-    
-    if (elSetup && elSetup.textContent === 'Carregando...') elSetup.textContent = mac;
-    if (elHome && elHome.textContent === 'Carregando...') elHome.textContent = mac;
-    if (elSettings && elSettings.textContent === '00:00:00:00:00:00') elSettings.textContent = mac;
+    if ($('#setup-mac')) $('#setup-mac').textContent = mac;
+    if ($('#home-mac')) $('#home-mac').textContent = mac;
+    if ($('#settings-mac')) $('#settings-mac').textContent = mac;
+  } catch(e) {}
+}, 100);
 
-    tentativasMac++;
-    if (tentativasMac > 10) clearInterval(macInterval);
-  } catch (e) { console.error("Erro no MAC:", e); }
-}, 200);
-
-// --- RESTO DO CÓDIGO ---
 let currentPlaylist = []; 
 let filteredPlaylist = []; 
 let currentXtreamApi = null;
