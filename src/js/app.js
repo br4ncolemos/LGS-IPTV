@@ -8,18 +8,34 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 // --- ANIQUILADOR DE BANNER DO NETLIFY ---
-setInterval(() => {
-  const netlifyBadge = document.querySelector('iframe[src*="netlify"]') || 
-                       document.querySelector('#netlify-badge') ||
-                       document.querySelector('[data-netlify-badge]');
-  
-  if (netlifyBadge) {
-    netlifyBadge.style.setProperty('display', 'none', 'important');
-    netlifyBadge.style.setProperty('opacity', '0', 'important');
-    netlifyBadge.style.setProperty('visibility', 'hidden', 'important');
-    netlifyBadge.remove(); 
+const style = document.createElement('style');
+style.innerHTML = `
+  iframe[src*="netlify"], #netlify-badge, .netlify-badge, [data-netlify-badge] { 
+    display: none !important; 
+    opacity: 0 !important; 
+    visibility: hidden !important; 
+    pointer-events: none !important;
   }
-}, 500);
+`;
+document.head.appendChild(style);
+
+// --- FORÇA O MAC ADDRESS A APARECER IMEDIATAMENTE ---
+function forcarMacNaTela() {
+  try {
+    const mac = storage.getDeviceMac();
+    const elSetup = document.getElementById('setup-mac');
+    const elHome = document.getElementById('home-mac');
+    const elSettings = document.getElementById('settings-mac');
+    
+    if (elSetup) elSetup.textContent = mac;
+    if (elHome) elHome.textContent = mac;
+    if (elSettings) elSettings.textContent = mac;
+  } catch (e) {
+    console.error("Erro no MAC:", e);
+  }
+}
+// Roda assim que o script carregar
+setTimeout(forcarMacNaTela, 100);
 
 let currentPlaylist = []; 
 let filteredPlaylist = []; 
@@ -60,7 +76,6 @@ function hideLoader() {
   if (loader) loader.classList.remove('active'); 
 }
 
-// SALVA-VIDAS: Se em 4 segundos o app não carregar, ele força a tela de login e esconde o loader
 setTimeout(() => {
   const loader = $('#global-loader');
   if (loader && loader.classList.contains('active')) {
@@ -427,11 +442,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   initSpatialNavigation();
   showLoader('Iniciando...');
   
-  try {
-    $('#setup-mac').textContent = storage.getDeviceMac();
-    $('#home-mac').textContent = storage.getDeviceMac();
-  } catch(e) { console.error(e); }
-  
+  // Roda de novo só pra garantir
+  forcarMacNaTela();
+
   const isLogged = await tryAutoLogin();
   if (!isLogged) { 
     showScreen('screen-setup'); 
@@ -494,7 +507,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   $('#btn-back-series').addEventListener('click', () => showScreen('screen-channels'));
   $('#btn-back-movie').addEventListener('click', () => showScreen('screen-channels'));
   $('#btn-back-settings').addEventListener('click', () => showScreen('screen-home'));
-  $('#btn-open-settings').addEventListener('click', () => { $('#settings-mac').textContent = storage.getDeviceMac(); showScreen('screen-settings'); });
+  $('#btn-open-settings').addEventListener('click', () => { forcarMacNaTela(); showScreen('screen-settings'); });
   $('#btn-toggle-sidebar').addEventListener('click', () => {
     const sidebar = $('#sidebar');
     sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
