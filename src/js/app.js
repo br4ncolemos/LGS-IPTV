@@ -7,6 +7,20 @@ import { initSpatialNavigation, setFocus } from './tv/spatialNav.js';
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
+// --- ANIQUILADOR DE BANNER DO NETLIFY ---
+setInterval(() => {
+  const netlifyBadge = document.querySelector('iframe[src*="netlify"]') || 
+                       document.querySelector('#netlify-badge') ||
+                       document.querySelector('[data-netlify-badge]');
+  
+  if (netlifyBadge) {
+    netlifyBadge.style.setProperty('display', 'none', 'important');
+    netlifyBadge.style.setProperty('opacity', '0', 'important');
+    netlifyBadge.style.setProperty('visibility', 'hidden', 'important');
+    netlifyBadge.remove(); 
+  }
+}, 500);
+
 let currentPlaylist = []; 
 let filteredPlaylist = []; 
 let currentXtreamApi = null;
@@ -46,7 +60,7 @@ function hideLoader() {
   if (loader) loader.classList.remove('active'); 
 }
 
-// SE O APP DEMORAR MAIS DE 4 SEGUNDOS PRA CARREGAR, ELE ABRE A TELA DE LOGIN (SALVA-VIDAS)
+// SALVA-VIDAS: Se em 4 segundos o app não carregar, ele força a tela de login e esconde o loader
 setTimeout(() => {
   const loader = $('#global-loader');
   if (loader && loader.classList.contains('active')) {
@@ -331,9 +345,8 @@ async function fetchCategory(catId, btnElement = null) {
   }
 }
 
-// --- LÓGICA DE CONTINUAR ASSISTINDO (BUSCA POR TÍTULO) ---
 function initiatePlay(url, title) {
-  const history = storage.getProgress(title); // Busca pelo nome do filme/episódio
+  const history = storage.getProgress(title);
   
   if (history && history.currentTime > 10) {
     pendingPlayData = { url, title, startTime: history.currentTime };
@@ -374,7 +387,7 @@ function executePlay(url, title, startTime) {
     clearInterval(progressSaveInterval);
     progressSaveInterval = setInterval(() => {
       if (video.duration) {
-        storage.saveProgress(title, url, video.currentTime, video.duration); // Salva com o título
+        storage.saveProgress(title, url, video.currentTime, video.duration);
       }
     }, 5000);
 
@@ -402,11 +415,10 @@ async function tryAutoLogin() {
     showScreen('screen-home'); 
     return true;
   } catch (err) {
-    // SE DER ERRO (CORS/Offline), NÃO PEDE LOGIN DE NOVO!
     console.warn("Erro no auto-login, mas mantendo a sessão:", err);
     hideLoader(); 
     showToast('Sua lista está offline, mas seu MAC está salvo.', 'error');
-    showScreen('screen-home'); // Força a entrada na Home
+    showScreen('screen-home'); 
     return true;
   }
 }
@@ -555,7 +567,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   $('#btn-back').addEventListener('click', async () => {
     if (video.duration && video.currentTime > 10) {
       const currentTitle = $('#player-title').textContent;
-      storage.saveProgress(currentTitle, video.src, video.currentTime, video.duration); // Salva pelo Título
+      storage.saveProgress(currentTitle, video.src, video.currentTime, video.duration);
     }
     video.pause();
     video.removeAttribute('src');
