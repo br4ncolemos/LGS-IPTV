@@ -7,32 +7,20 @@ import { initSpatialNavigation, setFocus } from './tv/spatialNav.js';
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-// --- SISTEMA DE DEFESA CONTRA O BANNER DO NETLIFY ---
-// 1. Cria a regra de CSS
-const style = document.createElement('style');
-style.innerHTML = `
-  iframe[src*="netlify"], 
-  #netlify-badge, 
-  .netlify-badge, 
-  [data-netlify-badge],
-  div[style*="z-index: 999999"],
-  a[href*="netlify.com"]:not(.btn-shine) {
-    display: none !important; 
-    opacity: 0 !important; 
-    visibility: hidden !important; 
-    pointer-events: none !important;
-  }
-`;
-document.head.appendChild(style);
+// --- 1. O ANIQUILADOR DE BANNER (Espera 2s pra não travar o MAC) ---
+setTimeout(() => {
+  setInterval(() => {
+    const netlifyBadge = document.querySelector('iframe[src*="netlify"]') || 
+                         document.querySelector('#netlify-badge') ||
+                         document.querySelector('[data-netlify-badge]');
+    if (netlifyBadge) {
+      netlifyBadge.style.display = 'none';
+      netlifyBadge.remove();
+    }
+  }, 1000); // Verifica a cada 1 segundo
+}, 2000);
 
-// 2. O Exterminador: Fica de olho no site e arranca o banner se ele aparecer
-const observer = new MutationObserver(() => {
-  const banners = document.querySelectorAll('iframe[src*="netlify"], #netlify-badge, .netlify-badge, [data-netlify-badge]');
-  banners.forEach(b => b.remove());
-});
-observer.observe(document.body, { childList: true, subtree: true });
-
-// --- FORÇA O MAC ADDRESS A APARECER IMEDIATAMENTE ---
+// --- 2. SISTEMA MAC ADDRESS (Força bruta pra nunca ficar "Carregando") ---
 let tentativasMac = 0;
 const macInterval = setInterval(() => {
   try {
@@ -50,6 +38,7 @@ const macInterval = setInterval(() => {
   } catch (e) { console.error("Erro no MAC:", e); }
 }, 200);
 
+// --- RESTO DO CÓDIGO ---
 let currentPlaylist = []; 
 let filteredPlaylist = []; 
 let currentXtreamApi = null;
