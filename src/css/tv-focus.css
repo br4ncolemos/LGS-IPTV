@@ -1,0 +1,56 @@
+:focus { outline: none; }
+svg { pointer-events: none; }
+
+/* =========================================
+   FOCO GLOBAL (Padrão)
+   ========================================= */
+:focus-visible, .focused {
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  z-index: 2;
+}
+
+/* Botões Topbar e Login */
+.btn-gear:focus-visible, .btn-gear.focused { 
+  color: var(--accent); border-color: var(--accent); transform: scale(1.1); 
+}
+.login-tab.focused, .login-tab:focus-visible { 
+  color: var(--accent); background: rgba(0, 224, 255, 0.1); 
+}
+
+/* =========================================
+   HUB CARDS (Foco Limpo)
+   ========================================= */
+.hub-card.focused, .hub-card:focus-visible {
+  border-color: var(--accent);
+  background: rgba(0, 224, 255, 0.1);
+  transform: scale(1.05); /* Zoom suave */
+  /* Brilho bem sutil na borda, sem o drop-shadow exagerado */
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Deixa o SVG ciano, sem filtro de glow */
+.hub-card.focused .hub-svg, .hub-card:focus-visible .hub-svg {
+  color: var(--accent);
+}
+
+/* =========================================
+   CARDS DE CANAIS (Grid de Canais)
+   ========================================= */
+.card.focused, .card:focus-visible {
+  box-shadow: 0 0 0 3px var(--accent); /* Borda grossa mas sem espalhar */
+  transform: scale(1.05); 
+  z-index: 10;
+}
+
+/* =========================================
+   BOTÕES DO PLAYER
+   ========================================= */
+.btn-player:focus-visible, .btn-player.focused {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px var(--accent); 
+}
+.btn-player:focus-visible::before, .btn-player.focused::before {
+  transform: translate(-50%, -50%) scale(1.5);
+}
