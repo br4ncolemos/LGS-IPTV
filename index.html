@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <title>LGS IPTV</title>
+  <link rel="icon" href="public/favicon.ico" />
+  <link rel="manifest" href="public/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/css/style.css" />
+  <link rel="stylesheet" href="src/css/tv-focus.css" />
+  <link rel="stylesheet" href="src/css/player.css" />
+</head>
+<body>
+  
+  <div class="bg-glow"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- MODAL DE CONTINUAR ASSISTINDO -->
+  <div id="modal-continue" class="modal-overlay">
+    <div class="modal-box">
+      <h3 class="modal-title">Continuar Assistindo?</h3>
+      <p class="modal-desc" id="modal-movie-name">Filme</p>
+      <p class="modal-time" id="modal-movie-time">Você parou em 00:00</p>
+      <div class="modal-actions">
+        <button id="btn-start-over" class="btn-modal outline">Começar do Início</button>
+        <button id="btn-resume" class="btn-modal filled">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="global-loader" class="global-loader">
+    <svg class="loader-svg"><rect class="loader-boxes"></rect></svg>
+    <p class="loader-text">Iniciando <span>LGS IPTV</span>...</p>
+  </div>
+
+  <!-- TELA DE SETUP / LOGIN -->
+  <div id="screen-setup" class="screen active">
+    <div class="setup-container">
+      <div class="brand setup-brand">
+        <h1>LGS <span>IPTV</span></h1>
+        <a href="#" class="btn-shine">feito pelo juan lemos</a>
+      </div>
+
+      <div class="glass-card">
+        <h2 class="setup-title">Bem-vindo ao LGS IPTV</h2>
+        <p class="setup-subtitle">Adicione sua lista para começar</p>
+
+        <div class="login-tabs">
+          <button class="login-tab active" data-type="xtream">Xtream Codes</button>
+          <button class="login-tab" data-type="m3u">M3U Playlist</button>
+        </div>
+
+        <form id="form-xtream" class="login-form active">
+          <div class="input-group"><input type="text" id="xt-name" placeholder="Nome da Lista (Ex: Minha TV)" required /></div>
+          <div class="input-group"><input type="text" id="xt-user" placeholder="Usuário" required /></div>
+          <div class="input-group"><input type="password" id="xt-pass" placeholder="Senha" required /></div>
+          <div class="input-group"><input type="url" id="xt-host" placeholder="http://servidor.com:porta" required /></div>
+          
+          <button type="submit" class="btn-action animated-button">
+            <svg viewBox="0 0 24 24" class="arr-2" xmlns="http://www.w3.org/2000/svg"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+            <span class="text">Entrar</span><span class="circle"></span>
+            <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+          </button>
+        </form>
+
+        <form id="form-m3u" class="login-form">
+          <div class="input-group"><input type="text" id="m3u-name" placeholder="Nome da Lista (Ex: Filmes)" required /></div>
+          <div class="input-group"><input type="url" id="m3u-url" placeholder="Cole o link da sua lista M3U" required /></div>
+          
+          <button type="submit" class="btn-action animated-button">
+            <svg viewBox="0 0 24 24" class="arr-2" xmlns="http://www.w3.org/2000/svg"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+            <span class="text">Carregar</span><span class="circle"></span>
+            <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+          </button>
+        </form>
+      </div>
+
+      <div class="home-mac-display" style="margin-top: 24px; margin-bottom: 0;">
+        <span>Seu MAC Address:</span>
+        <strong id="setup-mac">Carregando...</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA HOME -->
+  <div id="screen-home" class="screen">
+    <header class="topbar">
+      <div class="brand">
+        <h1>LGS <span>IPTV</span></h1>
+        <a href="#" class="btn-shine">feito pelo juan lemos</a>
+      </div>
+      <nav class="tabs">
+        <button class="tab btn-gear" id="btn-open-settings" aria-label="Configurações">
+          <svg class="svg-icon" fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><circle cx="10" cy="10" r="2.5"></circle><path clip-rule="evenodd" d="m8.39079 2.80235c.53842-1.51424 2.67991-1.51424 3.21831-.00001.3392.95358 1.4284 1.40477 2.3425.97027 1.4514-.68995 2.9657.82427 2.2758 2.27575-.4345.91407.0166 2.00334.9702 2.34248 1.5143.53842 1.5143 2.67996 0 3.21836-.9536.3391-1.4047 1.4284-.9702 2.3425.6899 1.4514-.8244 2.9656-2.2758 2.2757-.9141-.4345-2.0033.0167-2.3425.9703-.5384 1.5142-2.67989 1.5142-3.21831 0-.33914-.9536-1.4284-1.4048-2.34247-.9703-1.45148.6899-2.96571-.8243-2.27575-2.2757.43449-.9141-.01669-2.0034-.97028-2.3425-1.51422-.5384-1.51422-2.67994.00001-3.21836.95358-.33914 1.40476-1.42841.97027-2.34248-.68996-1.45148.82427-2.9657 2.27575-2.27575.91407.4345 2.00333-.01669 2.34247-.97026z" fill-rule="evenodd"></path></g>
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <main class="hub-content">
+      <h2 class="hub-title">O que você quer assistir hoje?</h2>
+      
+      <div class="home-mac-display">
+        <span>Seu MAC Address:</span>
+        <strong id="home-mac">Carregando...</strong>
+      </div>
+
+      <div class="hub-grid">
+        <div class="hub-card" tabindex="0" data-target="live">
+          <svg class="hub-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+            <polyline points="17 2 12 7 7 2"></polyline>
+          </svg>
+          <h3>Ao Vivo</h3>
+          <p>Canais de TV em tempo real</p>
+        </div>
+
+        <div class="hub-card" tabindex="0" data-target="movies">
+          <svg class="hub-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+            <line x1="7" y1="2" x2="7" y2="22"></line>
+            <line x1="17" y1="2" x2="17" y2="22"></line>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <line x1="2" y1="7" x2="7" y2="7"></line>
+            <line x1="2" y1="17" x2="7" y2="17"></line>
+            <line x1="17" y1="17" x2="22" y2="17"></line>
+            <line x1="17" y1="7" x2="22" y2="7"></line>
+          </svg>
+          <h3>Filmes</h3>
+          <p>Os maiores sucessos do cinema</p>
+        </div>
+
+        <div class="hub-card" tabindex="0" data-target="series">
+          <svg class="hub-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+            <line x1="7" y1="2" x2="7" y2="22"></line>
+            <line x1="17" y1="2" x2="17" y2="22"></line>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <line x1="2" y1="7" x2="7" y2="7"></line>
+            <line x1="2" y1="17" x2="7" y2="17"></line>
+            <line x1="17" y1="17" x2="22" y2="17"></line>
+            <line x1="17" y1="7" x2="22" y2="7"></line>
+          </svg>
+          <h3>Séries</h3>
+          <p>Maratone suas séries favoritas</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- TELA DE LISTA -->
+  <div id="screen-channels" class="screen">
+    <header class="topbar">
+      <div class="header-left">
+        <button class="btn-back" id="btn-back-home" aria-label="Voltar">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" /></svg>
+        </button>
+        <button class="btn-menu" id="btn-toggle-sidebar" aria-label="Categorias">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <h2 id="channels-title" class="channels-title">Ao Vivo</h2>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Pesquisar...">
+        <button class="search-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="layout-container">
+      <aside class="sidebar" id="sidebar">
+        <h3>Categorias</h3>
+        <div id="category-list" class="category-list"></div>
+      </aside>
+      <main id="content" class="content"></main>
+    </div>
+  </div>
+
+  <!-- TELA DE DETALHES DA SÉRIE -->
+  <div id="screen-series-details" class="screen">
+    <header class="topbar">
+      <button class="btn-back" id="btn-back-series" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" /></svg>
+      </button>
+      <h2 id="series-details-title" class="channels-title">Título da Série</h2>
+      <div style="width: 44px;"></div>
+    </header>
+    
+    <main class="content" style="padding: 0 24px 40px;">
+      <div class="series-hero">
+        <img id="series-cover" class="series-cover" src="" alt="Capa" />
+        <div class="series-info">
+          <p id="series-plot" class="series-plot">Sinopse da série aqui...</p>
+          <div class="series-meta">
+            <span><strong>Gênero:</strong> <span id="series-genre">-</span></span>
+            <span><strong>Lançamento:</strong> <span id="series-release">-</span></span>
+            <span><strong>Nota:</strong> <span id="series-rating" style="color: #ffd700;">★ -</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="seasons-container">
+        <h3 class="section-title">Episódios</h3>
+        <div id="seasons-tabs" class="seasons-tabs"></div>
+        <div id="episodes-list" class="episodes-list"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- TELA DE DETALHES DO FILME -->
+  <div id="screen-movie-details" class="screen">
+    <header class="topbar">
+      <button class="btn-back" id="btn-back-movie" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" /></svg>
+      </button>
+      <h2 id="movie-details-title" class="channels-title">Título do Filme</h2>
+      <div style="width: 44px;"></div>
+    </header>
+    
+    <main class="content" style="padding: 0 24px 40px;">
+      <div class="series-hero">
+        <img id="movie-cover" class="series-cover" src="" alt="Capa" />
+        <div class="series-info">
+          <p id="movie-plot" class="series-plot">Sinopse do filme aqui...</p>
+          <div class="series-meta">
+            <span><strong>Gênero:</strong> <span id="movie-genre">-</span></span>
+            <span><strong>Lançamento:</strong> <span id="movie-release">-</span></span>
+            <span><strong>Nota:</strong> <span id="movie-rating" style="color: #ffd700;">★ -</span></span>
+          </div>
+          <button id="btn-play-movie" class="btn-play-action">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            Assistir Agora
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- TELA DE CONFIGURAÇÕES -->
+  <div id="screen-settings" class="screen">
+    <header class="topbar">
+      <button class="btn-back" id="btn-back-settings" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" /></svg>
+      </button>
+      <h2 class="channels-title">Configurações</h2>
+      <div style="width: 44px;"></div>
+    </header>
+    
+    <main class="content" style="display: flex; flex-direction: column; align-items: center; padding-top: 40px;">
+      <div class="glass-card" style="max-width: 500px; width: 100%; text-align: center;">
+        <h3 style="margin-bottom: 10px; font-size: 18px;">Informações do Dispositivo</h3>
+        <p style="color: var(--muted); font-size: 14px; margin-bottom: 20px;">Forneça este MAC Address para o seu provedor caso seu acesso expire.</p>
+        <div style="background: rgba(0,0,0,0.5); padding: 16px; border-radius: 10px; border: 1px dashed var(--accent); margin-bottom: 30px;">
+          <span id="settings-mac" style="font-family: monospace; font-size: 20px; font-weight: 600; color: var(--accent); letter-spacing: 2px;">00:00:00:00:00:00</span>
+        </div>
+        <button id="btn-logout" class="btn-danger" style="width: 100%;">Sair da Conta Atual</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- TELA DO PLAYER -->
+  <div id="screen-player" class="screen">
+    <video id="video" playsinline></video>
+    
+    <div class="player-controls-overlay" id="player-controls">
+      <div class="pc-top">
+        <button id="btn-back" class="btn-player" aria-label="Voltar">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" /></svg>
+        </button>
+        <span id="player-title" class="player-title">—</span>
+        <div style="width: 44px;"></div>
+      </div>
+
+      <div class="pc-center">
+        <button id="btn-rewind" class="btn-player-icon" aria-label="Voltar 10s">
+          <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+          <span class="time-skip">10</span>
+        </button>
+        <button id="btn-play-pause" class="btn-player-icon main-play" aria-label="Play/Pause">
+          <svg id="icon-play" viewBox="0 0 24 24" style="display:none;"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button id="btn-forward" class="btn-player-icon" aria-label="Avançar 10s">
+          <svg viewBox="0 0 24 24"><path d="M13 6v12l8.5-6L13 6zm-1 6L3.5 6v12l8.5-6z"/></svg>
+          <span class="time-skip">10</span>
+        </button>
+      </div>
+
+      <div class="pc-bottom">
+        <div class="progress-container">
+          <span id="time-current">00:00</span>
+          <input type="range" id="video-progress" value="0" min="0" max="100" step="0.1">
+          <span id="time-total">00:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/vendor/hls.min.js"></script>
+  <script type="module" src="src/js/app.js"></script>
+</body>
+</html>
