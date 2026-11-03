@@ -7,20 +7,18 @@ import { initSpatialNavigation, setFocus } from './tv/spatialNav.js';
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-// --- 1. O ANIQUILADOR DE BANNER (Espera 2s pra não travar o MAC) ---
-setTimeout(() => {
-  setInterval(() => {
-    const netlifyBadge = document.querySelector('iframe[src*="netlify"]') || 
-                         document.querySelector('#netlify-badge') ||
-                         document.querySelector('[data-netlify-badge]');
-    if (netlifyBadge) {
-      netlifyBadge.style.display = 'none';
-      netlifyBadge.remove();
-    }
-  }, 1000); // Verifica a cada 1 segundo
-}, 2000);
+// --- O EXTERMINADOR DO NETLIFY ---
+// Procura a tag <netlify-badge> (que é o coração do banner) e arranca ela + o pai dela
+setInterval(() => {
+  const badge = document.querySelector('netlify-badge');
+  if (badge) {
+    // Se achar, remove o elemento e o container dele
+    badge.remove(); 
+    if (badge.parentElement) badge.parentElement.remove();
+  }
+}, 1000); 
 
-// --- 2. SISTEMA MAC ADDRESS (Força bruta pra nunca ficar "Carregando") ---
+// --- SISTEMA MAC ADDRESS (Força bruta pra nunca ficar "Carregando") ---
 let tentativasMac = 0;
 const macInterval = setInterval(() => {
   try {
